@@ -4,6 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OUTLINE</title>
+
+<!-- ============================================================ -->
+<!-- ⚙ CONFIG — редактируй здесь                                 -->
+<!--                                                              -->
+<!-- ACCESS_KEY: вставь полную ss://... ссылку.                   -->
+<!--   Имя извлекается автоматически из хэша после '#'.           -->
+<!--   Можно переопределить через NAME (см. ниже).                -->
+<!--                                                              -->
+<!-- NAME:     если null — берётся из #-хэша в ACCESS_KEY,        -->
+<!--           иначе перетирает имя.                              -->
+<!-- ============================================================ -->
+<script>
+  window.OUTLINE_CONFIG = {
+    ACCESS_KEY: "ss://YWVzLTI1Ni1nY206WldNM1lqWTFOREUyTkROak5qZzJZbU0wT0RjMVltTmlNalUyTTJReg@66.90.90.98:8130?prefix=%16%03%01%00%C2%A8%01%01#nl-3d27dbdf74",
+    NAME: "65gh"
+  };
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Black+Ops+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,14 +30,12 @@
   html, body { overflow: hidden; height: 100%; }
 
   :root {
-    /* Подобрал по референсу — холодные синеватые тени, без перекоса в чисто-чёрный */
     --bg-0:      #0c1014;
     --bg-1:      #141a20;
     --fg:        #e8ecf0;
     --fg-dim:    #6b7682;
     --fg-mute:   #3a434c;
     --line:      #2a3138;
-    /* RGB-split как в Marathon — холодный голубой и тёплый коралловый, мягкие */
     --split-c:   rgba(120, 220, 255, 0.55);
     --split-r:   rgba(255, 100, 110, 0.55);
   }
@@ -36,7 +52,6 @@
     perspective-origin: 50% 40%;
   }
 
-  /* Звёздная пыль */
   .stars {
     position: fixed; inset: 0;
     pointer-events: none;
@@ -54,7 +69,6 @@
       radial-gradient(1px 1px at 70% 92%, rgba(255,255,255,0.35), transparent);
   }
 
-  /* Сканлайн */
   .scan {
     position: fixed; inset: 0;
     background: repeating-linear-gradient(
@@ -71,7 +85,6 @@
     100% { transform: translateY(3px); }
   }
 
-  /* Виньетка */
   .vignette {
     position: fixed; inset: 0;
     pointer-events: none;
@@ -79,7 +92,6 @@
     background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.55) 100%);
   }
 
-  /* Угловые скобки */
   .frame-tl, .frame-tr, .frame-bl, .frame-br {
     position: fixed;
     width: 22px; height: 22px;
@@ -92,7 +104,6 @@
   .frame-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
   .frame-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
-  /* Маленький "+" в углу как на референсе */
   .corner-cross-bl {
     position: fixed;
     bottom: 42px;
@@ -114,7 +125,6 @@
     opacity: 0.7;
   }
 
-  /* Маленькие двойные слэши вверху слева как `//` на референсе */
   .top-slashes {
     position: fixed;
     top: 22px;
@@ -130,7 +140,6 @@
       1.5px 0 0 var(--split-c);
   }
 
-  /* ===== STAGE ===== */
   .stage-wrap {
     position: absolute;
     top: 40%;
@@ -162,7 +171,6 @@
     100% { transform: rotateX(38deg) rotateZ(-18deg) translate(0,0) skewX(0); filter: blur(0); }
   }
 
-  /* ===== TITLE — большой над кнопками, тоже в наклоне ===== */
   .title {
     font-family: "Chakra Petch", monospace;
     font-weight: 700;
@@ -174,7 +182,6 @@
     margin-left: 8px;
     line-height: 1;
     position: relative;
-    /* RGB split — крупнее у заголовка */
     text-shadow:
       -3px 0 0 var(--split-r),
       3px 0 0 var(--split-c);
@@ -203,7 +210,6 @@
     text-shadow: none;
   }
 
-  /* Линия-разделитель под заголовком (со штрихами как на скрине) */
   .title-line {
     display: flex;
     align-items: center;
@@ -211,20 +217,9 @@
     margin-bottom: 30px;
     margin-left: 8px;
   }
-  .title-line .seg-1 {
-    flex: 1;
-    height: 1px;
-    background: var(--fg-mute);
-  }
-  .title-line .seg-2 {
-    width: 60px;
-    height: 1px;
-    background: var(--fg);
-  }
-  .title-line .tick {
-    width: 6px; height: 6px;
-    border: 1px solid var(--fg-mute);
-  }
+  .title-line .seg-1 { flex: 1; height: 1px; background: var(--fg-mute); }
+  .title-line .seg-2 { width: 60px; height: 1px; background: var(--fg); }
+  .title-line .tick  { width: 6px; height: 6px; border: 1px solid var(--fg-mute); }
   .title-line .label {
     font-family: "JetBrains Mono", monospace;
     font-size: 9px;
@@ -234,7 +229,6 @@
     padding: 0 4px;
   }
 
-  /* ===== MENU ROWS ===== */
   .row {
     display: flex;
     align-items: center;
@@ -247,8 +241,6 @@
       drop-shadow(-2px 0 0 var(--split-r))
       drop-shadow(2px 0 0 var(--split-c));
   }
-
-  /* Левый штрих-засечка */
   .row::before {
     content: "";
     position: absolute;
@@ -259,7 +251,6 @@
     background: var(--fg);
     transform: translateY(-50%);
   }
-
   .row-inner {
     flex: 1;
     height: 100%;
@@ -288,7 +279,6 @@
     font-weight: 700;
   }
 
-  /* Активный ряд — белая заливка с диагональной штриховкой справа */
   .row.active .row-inner {
     background: var(--fg);
     border-color: var(--fg);
@@ -311,7 +301,6 @@
     pointer-events: none;
   }
 
-  /* Маленький подштрих ПОД каждым рядом — как в референсе */
   .row::after {
     content: "";
     position: absolute;
@@ -328,7 +317,6 @@
     opacity: 1;
   }
 
-  /* Боковая декоративная штриховка справа от активной */
   .stripe-deco {
     position: absolute;
     top: 50%;
@@ -345,7 +333,6 @@
     opacity: 0.5;
   }
 
-  /* Боковой маркер справа (квадратик) */
   .row .side-mark {
     position: absolute;
     right: -32px;
@@ -358,7 +345,6 @@
   }
   .row.active .side-mark { opacity: 1; }
 
-  /* Хвост-линия у активной */
   .row.active .trail {
     position: absolute;
     right: -200px;
@@ -369,13 +355,12 @@
     transform: translateY(-50%);
   }
 
-  /* ===== DATA / META ===== */
   .data-row {
     margin-top: 32px;
     padding: 14px 18px;
     border: 1px solid var(--line);
     background: rgba(48,58,72,0.9);
-    backdrop-: blur(2px);
+    backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     filter:
       drop-shadow(-1.5px 0 0 var(--split-r))
@@ -425,7 +410,6 @@
   }
   @keyframes blink { 50% { opacity: 0.2; } }
 
-  /* Нижний инфо-бар */
   .bottom-info {
     position: fixed;
     bottom: 28px;
@@ -439,7 +423,6 @@
     z-index: 60;
   }
 
-  /* Glitch bar */
   .glitch-bar {
     position: fixed;
     left: 0; right: 0;
@@ -462,7 +445,6 @@
     100% { top: 110%; opacity: 1; }
   }
 
-  /* Toast */
   .toast {
     position: fixed;
     bottom: 70px;
@@ -501,7 +483,7 @@
     <div class="stage" id="stage">
 
       <div class="title">
-        <span class="slash">//</span>OUTLINE<span class="id">SN-02</span>
+        <span class="slash">//</span>OUTLINE<span class="id" id="title-id">SN-02</span>
       </div>
 
       <div class="title-line">
@@ -512,7 +494,7 @@
         <span class="tick"></span>
       </div>
 
-      <a class="row active" id="goBtn" href="ss://YWVzLTI1Ni1nY206TTJWa1pEUm1NVFJsTkRkaE9UWXdZVFZoWkRFM1ptUmtOMlUzTWpoaA@66.90.90.98:8115?prefix=%16%03%01%00%C2%A8%01%01#ee-a89f8702aa" style="text-decoration:none;">
+      <a class="row active" id="goBtn" href="#" style="text-decoration:none;">
         <div class="row-inner">
           <span class="label">Connect</span>
           <span class="arrow">▶</span>
@@ -533,9 +515,9 @@
       <div class="data-row">
         <div class="data-label">
           <span>access key //</span>
-          <span>ee-a89f8702aa</span>
+          <span id="key-name">ee-a89f8702aa</span>
         </div>
-        <div class="data-value" id="link">ss://YWVzLTI1Ni1nY206TTJWa1pEUm1NVFJsTkRkaE9UWXdZVFZoWkRFM1ptUmtOMlUzTWpoaA@66.90.90.98:8115?prefix=%16%03%01%00%C2%A8%01%01#ee-a89f8702aa</div>
+        <div class="data-value" id="link"></div>
       </div>
 
       <div class="stage-meta">
@@ -550,17 +532,42 @@
   <div class="toast" id="toast">copied</div>
 
 <script>
+  /* ----- CONFIG → DOM ------------------------------------------ */
+  const cfg = window.OUTLINE_CONFIG || {};
+  const ACCESS_KEY = cfg.ACCESS_KEY || "";
+
+  // Имя: либо явное из конфига, либо берём всё после '#' в ключе
+  function extractName(key) {
+    const i = key.lastIndexOf("#");
+    if (i === -1) return "";
+    try { return decodeURIComponent(key.slice(i + 1)); }
+    catch (e) { return key.slice(i + 1); }
+  }
+  const NAME = cfg.NAME || extractName(ACCESS_KEY) || "unnamed";
+
+  // Применяем в DOM
+  document.getElementById("link").textContent = ACCESS_KEY;
+  document.getElementById("key-name").textContent = NAME;
+  document.getElementById("goBtn").setAttribute("href", ACCESS_KEY);
+
+  // ID в заголовке (мелкая надпись справа от OUTLINE) —
+  // показывает короткий префикс имени для антуража
+  const idEl = document.getElementById("title-id");
+  if (idEl) {
+    const short = NAME.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 8) || "SN-02";
+    idEl.textContent = short;
+  }
+
+  /* ----- Copy & glitch ----------------------------------------- */
   const link = document.getElementById('link');
   const toast = document.getElementById('toast');
   const stage = document.getElementById('stage');
   const bar = document.getElementById('glitchBar');
 
   function copyText(text) {
-    // Современный API (нужен https/localhost)
     if (navigator.clipboard && window.isSecureContext) {
       return navigator.clipboard.writeText(text);
     }
-    // Fallback для file://, content://, http://
     return new Promise((resolve, reject) => {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -607,7 +614,6 @@
         if (stripe) stripe.remove();
       });
       r.classList.add('active');
-      // Воссоздаём декор для нового активного
       if (!r.querySelector('.trail')) {
         const t = document.createElement('span');
         t.className = 'trail';
