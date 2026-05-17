@@ -423,6 +423,114 @@
     z-index: 60;
   }
 
+  /* ===== BOTTOM HUD ===== */
+  /* Слева: статус-индикаторы с барами */
+  .hud-bl {
+    position: fixed;
+    bottom: 60px;
+    left: 26px;
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: var(--fg-mute);
+    text-transform: uppercase;
+    /* лёгкий RGB-split для единства со сценой */
+    filter:
+      drop-shadow(-1px 0 0 var(--split-r))
+      drop-shadow(1px 0 0 var(--split-c));
+  }
+  .hud-bl .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hud-bl .stat .k { color: var(--fg-dim); width: 22px; }
+  .hud-bl .stat .bar {
+    width: 54px;
+    height: 3px;
+    background: var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .hud-bl .stat .bar .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--fg-dim);
+  }
+  .hud-bl .stat.s1 .fill { width: 78%; animation: bar-flux 4s infinite; }
+  .hud-bl .stat.s2 .fill { width: 92%; animation: bar-flux 3.2s infinite 0.5s; }
+  .hud-bl .stat.s3 .fill { width: 41%; animation: bar-flux 5s infinite 1s; }
+  @keyframes bar-flux {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .hud-bl .stat .v { color: var(--fg-dim); min-width: 18px; text-align: right; }
+
+  /* Справа: координаты и live-индикатор */
+  .hud-br {
+    position: fixed;
+    bottom: 100px;
+    right: 28px;
+    z-index: 45;
+    text-align: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: var(--fg-mute);
+    text-transform: uppercase;
+    line-height: 1.7;
+    filter:
+      drop-shadow(-1px 0 0 var(--split-r))
+      drop-shadow(1px 0 0 var(--split-c));
+  }
+  .hud-br .v { color: var(--fg-dim); }
+  .hud-br .live {
+    display: inline-block;
+    width: 5px; height: 5px;
+    background: var(--fg);
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+    animation: blink 1.6s infinite steps(2);
+  }
+
+  /* Центральная шильдик-плашка над bottom-info */
+  .bottom-strip {
+    position: fixed;
+    left: 50%;
+    bottom: 50px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 45;
+    pointer-events: none;
+  }
+  .bottom-strip .hatch {
+    width: 60px;
+    height: 8px;
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 3px,
+      var(--fg-mute) 3px 4px
+    );
+    opacity: 0.6;
+  }
+  .bottom-strip .badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+    background: rgba(48, 58, 72, 0.4);
+  }
+
   .glitch-bar {
     position: fixed;
     left: 0; right: 0;
@@ -525,6 +633,37 @@
         <span>AES-256-GCM</span>
       </div>
     </div>
+  </div>
+
+  <!-- Bottom HUD: статусы слева, координаты справа, шильдик по центру -->
+  <div class="hud-bl">
+    <div class="stat s1">
+      <span class="k">SIG</span>
+      <span class="bar"><span class="fill"></span></span>
+      <span class="v">78</span>
+    </div>
+    <div class="stat s2">
+      <span class="k">ENC</span>
+      <span class="bar"><span class="fill"></span></span>
+      <span class="v">92</span>
+    </div>
+    <div class="stat s3">
+      <span class="k">PWR</span>
+      <span class="bar"><span class="fill"></span></span>
+      <span class="v">41</span>
+    </div>
+  </div>
+
+  <div class="hud-br">
+    <div>UPLINK <span class="v">066.090.090.098</span></div>
+    <div>PORT <span class="v">:8115</span></div>
+    <div><span class="live"></span><span class="v">LIVE</span></div>
+  </div>
+
+  <div class="bottom-strip">
+    <span class="hatch"></span>
+    <span class="badge">PROTO // SS</span>
+    <span class="hatch"></span>
   </div>
 
   <div class="bottom-info">// SELECT TO PROCEED</div>
