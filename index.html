@@ -18,7 +18,7 @@
 <script>
   window.OUTLINE_CONFIG = {
     ACCESS_KEY: "ss://YWVzLTI1Ni1nY206WldNM1lqWTFOREUyTkROak5qZzJZbU0wT0RjMVltTmlNalUyTTJReg@66.90.90.98:8130?prefix=%16%03%01%00%C2%A8%01%01#nl-3d27dbdf74",
-    NAME: "65gh"
+    NAME:     null
   };
 </script>
 
@@ -534,18 +534,30 @@
 <script>
   /* ----- CONFIG → DOM ------------------------------------------ */
   const cfg = window.OUTLINE_CONFIG || {};
-  const ACCESS_KEY = cfg.ACCESS_KEY || "";
+  const RAW_KEY = cfg.ACCESS_KEY || "";
 
-  // Имя: либо явное из конфига, либо берём всё после '#' в ключе
+  // Имя: если задано — используем, иначе берём существующий хэш из ключа
   function extractName(key) {
     const i = key.lastIndexOf("#");
     if (i === -1) return "";
     try { return decodeURIComponent(key.slice(i + 1)); }
     catch (e) { return key.slice(i + 1); }
   }
-  const NAME = cfg.NAME || extractName(ACCESS_KEY) || "unnamed";
+  const NAME = (typeof cfg.NAME === "string" && cfg.NAME.trim())
+    ? cfg.NAME.trim()
+    : (extractName(RAW_KEY) || "unnamed");
 
-  // Применяем в DOM
+  // Финальный ключ — с подставленным NAME в хэш
+  function withName(key, name) {
+    const hashIdx = key.indexOf("#");
+    const base = hashIdx === -1 ? key : key.slice(0, hashIdx);
+    return base + "#" + encodeURIComponent(name);
+  }
+  const ACCESS_KEY = withName(RAW_KEY, NAME);
+
+  console.log("[OUTLINE] NAME =", NAME, "| final key =", ACCESS_KEY);
+
+  // Применяем в DOM — везде один и тот же ключ
   document.getElementById("link").textContent = ACCESS_KEY;
   document.getElementById("key-name").textContent = NAME;
   document.getElementById("goBtn").setAttribute("href", ACCESS_KEY);
