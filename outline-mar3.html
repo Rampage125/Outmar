@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OUTLINE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Black+Ops+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow: hidden; height: 100%; }
+
+  :root {
+    /* Подобрал по референсу — холодные синеватые тени, без перекоса в чисто-чёрный */
+    --bg-0:      #0c1014;
+    --bg-1:      #141a20;
+    --fg:        #e8ecf0;
+    --fg-dim:    #6b7682;
+    --fg-mute:   #3a434c;
+    --line:      #2a3138;
+    /* RGB-split как в Marathon — холодный голубой и тёплый коралловый, мягкие */
+    --split-c:   rgba(120, 220, 255, 0.55);
+    --split-r:   rgba(255, 100, 110, 0.55);
+  }
+
+  body {
+    font-family: "Chakra Petch", monospace;
+    background:
+      radial-gradient(ellipse at 50% 30%, #182028 0%, #0c1014 55%, #060809 100%);
+    height: 100vh;
+    color: var(--fg);
+    position: relative;
+    overflow: hidden;
+    perspective: 2000px;
+    perspective-origin: 50% 40%;
+  }
+
+  /* Звёздная пыль */
+  .stars {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 78% 25%, rgba(255,255,255,0.35), transparent),
+      radial-gradient(1px 1px at 35% 65%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 88% 78%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 22% 88%, rgba(255,255,255,0.45), transparent),
+      radial-gradient(1px 1px at 62% 12%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 8% 55%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 95% 45%, rgba(255,255,255,0.45), transparent),
+      radial-gradient(1px 1px at 48% 80%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 70% 92%, rgba(255,255,255,0.35), transparent);
+  }
+
+  /* Сканлайн */
+  .scan {
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.02) 0 1px,
+      transparent 1px 3px
+    );
+    pointer-events: none;
+    z-index: 9998;
+    animation: scanmove 8s linear infinite;
+  }
+  @keyframes scanmove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(3px); }
+  }
+
+  /* Виньетка */
+  .vignette {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 9997;
+    background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* Угловые скобки */
+  .frame-tl, .frame-tr, .frame-bl, .frame-br {
+    position: fixed;
+    width: 22px; height: 22px;
+    border: 1px solid var(--fg-mute);
+    pointer-events: none;
+    z-index: 50;
+  }
+  .frame-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  .frame-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+  .frame-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+  .frame-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+  /* Маленький "+" в углу как на референсе */
+  .corner-cross-bl {
+    position: fixed;
+    bottom: 42px;
+    left: 26px;
+    color: var(--fg-mute);
+    font-family: monospace;
+    font-size: 14px;
+    z-index: 45;
+  }
+  .corner-cross-bl::before { content: "+"; }
+
+  .corner-box-br {
+    position: fixed;
+    bottom: 50px;
+    right: 32px;
+    width: 60px; height: 38px;
+    border: 1px solid var(--fg-mute);
+    z-index: 45;
+    opacity: 0.7;
+  }
+
+  /* Маленькие двойные слэши вверху слева как `//` на референсе */
+  .top-slashes {
+    position: fixed;
+    top: 22px;
+    left: 30px;
+    font-family: "Chakra Petch", monospace;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--fg);
+    letter-spacing: 2px;
+    z-index: 50;
+    text-shadow:
+      -1.5px 0 0 var(--split-r),
+      1.5px 0 0 var(--split-c);
+  }
+
+  /* ===== STAGE ===== */
+  .stage-wrap {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 600px;
+    padding: 0 20px;
+    z-index: 5;
+  }
+  .stage {
+    transform: rotateX(38deg) rotateZ(-18deg);
+    transform-style: preserve-3d;
+    transform-origin: 50% 50%;
+    animation: stage-jitter 4s infinite steps(1);
+  }
+  @keyframes stage-jitter {
+    0%, 96%, 100% { transform: rotateX(38deg) rotateZ(-18deg) translate(0,0); }
+    97% { transform: rotateX(38deg) rotateZ(-18deg) translate(-2px, 1px); }
+    98% { transform: rotateX(38deg) rotateZ(-18deg) translate(3px, -2px); }
+    99% { transform: rotateX(38deg) rotateZ(-18deg) translate(-1px, 1px); }
+  }
+  .stage.burst { animation: stage-burst 0.45s steps(1); }
+  @keyframes stage-burst {
+    0%   { transform: rotateX(38deg) rotateZ(-18deg) translate(0,0) skewX(0); filter: blur(0); }
+    25%  { transform: rotateX(38deg) rotateZ(-18deg) translate(-8px,3px) skewX(-3deg); filter: blur(1.2px); }
+    50%  { transform: rotateX(38deg) rotateZ(-18deg) translate(6px,-4px) skewX(3deg); filter: blur(0.6px); }
+    75%  { transform: rotateX(38deg) rotateZ(-18deg) translate(-3px,2px) skewX(-1deg); filter: blur(0); }
+    100% { transform: rotateX(38deg) rotateZ(-18deg) translate(0,0) skewX(0); filter: blur(0); }
+  }
+
+  /* ===== TITLE — большой над кнопками, тоже в наклоне ===== */
+  .title {
+    font-family: "Chakra Petch", monospace;
+    font-weight: 700;
+    font-size: 54px;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin-bottom: 28px;
+    margin-left: 8px;
+    line-height: 1;
+    position: relative;
+    /* RGB split — крупнее у заголовка */
+    text-shadow:
+      -3px 0 0 var(--split-r),
+      3px 0 0 var(--split-c);
+    animation: title-flicker 5s infinite steps(1);
+  }
+  @keyframes title-flicker {
+    0%, 88%, 100% { opacity: 1; transform: translate(0,0); }
+    89% { opacity: 0.6; transform: translate(-2px, 1px); }
+    90% { opacity: 1; transform: translate(2px, -1px); }
+    91% { opacity: 0.85; transform: translate(0, 0); }
+    92% { opacity: 1; transform: translate(0, 0); }
+  }
+  .title .slash {
+    color: var(--fg-dim);
+    font-weight: 500;
+    margin-right: 14px;
+    text-shadow: none;
+  }
+  .title .id {
+    font-size: 22px;
+    letter-spacing: 6px;
+    color: var(--fg-dim);
+    font-weight: 500;
+    margin-left: 14px;
+    vertical-align: middle;
+    text-shadow: none;
+  }
+
+  /* Линия-разделитель под заголовком (со штрихами как на скрине) */
+  .title-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+    margin-left: 8px;
+  }
+  .title-line .seg-1 {
+    flex: 1;
+    height: 1px;
+    background: var(--fg-mute);
+  }
+  .title-line .seg-2 {
+    width: 60px;
+    height: 1px;
+    background: var(--fg);
+  }
+  .title-line .tick {
+    width: 6px; height: 6px;
+    border: 1px solid var(--fg-mute);
+  }
+  .title-line .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    padding: 0 4px;
+  }
+
+  /* ===== MENU ROWS ===== */
+  .row {
+    display: flex;
+    align-items: center;
+    height: 58px;
+    margin-bottom: 16px;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    filter:
+      drop-shadow(-2px 0 0 var(--split-r))
+      drop-shadow(2px 0 0 var(--split-c));
+  }
+
+  /* Левый штрих-засечка */
+  .row::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    width: 8px;
+    height: 1px;
+    background: var(--fg);
+    transform: translateY(-50%);
+  }
+
+  .row-inner {
+    flex: 1;
+    height: 100%;
+    border: 1px solid var(--fg);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+  }
+  .row-inner .label {
+    font-family: "Chakra Petch", monospace;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin-left: auto;
+    margin-right: 12px;
+  }
+  .row-inner .arrow {
+    font-family: monospace;
+    color: var(--fg);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* Активный ряд — белая заливка с диагональной штриховкой справа */
+  .row.active .row-inner {
+    background: var(--fg);
+    border-color: var(--fg);
+  }
+  .row.active .row-inner .label,
+  .row.active .row-inner .arrow {
+    color: var(--bg-0);
+  }
+  .row.active .row-inner::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 38%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 5px,
+      rgba(0,0,0,0.18) 5px 7px
+    );
+    pointer-events: none;
+  }
+
+  /* Маленький подштрих ПОД каждым рядом — как в референсе */
+  .row::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 30px;
+    width: 110px;
+    height: 1px;
+    background: var(--fg);
+    opacity: 0.65;
+  }
+  .row.active::after {
+    left: 8px;
+    width: 160px;
+    opacity: 1;
+  }
+
+  /* Боковая декоративная штриховка справа от активной */
+  .stripe-deco {
+    position: absolute;
+    top: 50%;
+    right: -80px;
+    width: 70px;
+    height: 38px;
+    transform: translateY(-50%);
+    background: repeating-linear-gradient(
+      135deg,
+      transparent 0 4px,
+      var(--fg) 4px 5px,
+      transparent 5px 9px
+    );
+    opacity: 0.5;
+  }
+
+  /* Боковой маркер справа (квадратик) */
+  .row .side-mark {
+    position: absolute;
+    right: -32px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--fg);
+    transform: translateY(-50%);
+    opacity: 0.4;
+  }
+  .row.active .side-mark { opacity: 1; }
+
+  /* Хвост-линия у активной */
+  .row.active .trail {
+    position: absolute;
+    right: -200px;
+    top: 50%;
+    width: 180px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--fg) 0%, transparent 100%);
+    transform: translateY(-50%);
+  }
+
+  /* ===== DATA / META ===== */
+  .data-row {
+    margin-top: 32px;
+    padding: 14px 18px;
+    border: 1px solid var(--line);
+    background: rgba(48,58,72,0.9);
+    backdrop-: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    filter:
+      drop-shadow(-1.5px 0 0 var(--split-r))
+      drop-shadow(1.5px 0 0 var(--split-c));
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  }
+  .data-row .data-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .data-row .data-value {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--fg);
+    word-break: break-all;
+    line-height: 1.5;
+    max-height: 60px;
+    overflow: hidden;
+  }
+
+  .stage-meta {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    padding: 0 4px;
+  }
+  .stage-meta .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--fg);
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: blink 1.4s infinite steps(2);
+  }
+  @keyframes blink { 50% { opacity: 0.2; } }
+
+  /* Нижний инфо-бар */
+  .bottom-info {
+    position: fixed;
+    bottom: 28px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--fg-mute);
+    text-transform: uppercase;
+    z-index: 60;
+  }
+
+  /* Glitch bar */
+  .glitch-bar {
+    position: fixed;
+    left: 0; right: 0;
+    height: 28px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--split-r) 30%,
+      var(--split-c) 70%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+  .glitch-bar.active { animation: bar 0.5s linear; }
+  @keyframes bar {
+    0%   { top: -10%; opacity: 1; }
+    100% { top: 110%; opacity: 1; }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--fg);
+    color: var(--bg-0);
+    padding: 12px 24px;
+    font-family: "Chakra Petch", monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    transition: transform 0.25s;
+    z-index: 10000;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="vignette"></div>
+  <div class="scan"></div>
+  <div class="glitch-bar" id="glitchBar"></div>
+
+  <div class="frame-tl"></div>
+  <div class="frame-tr"></div>
+  <div class="frame-bl"></div>
+  <div class="frame-br"></div>
+
+  <div class="top-slashes">//</div>
+  <div class="corner-cross-bl"></div>
+  <div class="corner-box-br"></div>
+
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+
+      <div class="title">
+        <span class="slash">//</span>OUTLINE<span class="id">SN-02</span>
+      </div>
+
+      <div class="title-line">
+        <span class="seg-2"></span>
+        <span class="tick"></span>
+        <span class="label">secure link</span>
+        <span class="seg-1"></span>
+        <span class="tick"></span>
+      </div>
+
+      <a class="row active" id="goBtn" href="ss://YWVzLTI1Ni1nY206TTJWa1pEUm1NVFJsTkRkaE9UWXdZVFZoWkRFM1ptUmtOMlUzTWpoaA@66.90.90.98:8115?prefix=%16%03%01%00%C2%A8%01%01#ee-a89f8702aa" style="text-decoration:none;">
+        <div class="row-inner">
+          <span class="label">Connect</span>
+          <span class="arrow">▶</span>
+        </div>
+        <span class="side-mark"></span>
+        <span class="stripe-deco"></span>
+        <span class="trail"></span>
+      </a>
+
+      <div class="row" id="copyBtn">
+        <div class="row-inner">
+          <span class="label">Copy Key</span>
+          <span class="arrow">▶</span>
+        </div>
+        <span class="side-mark"></span>
+      </div>
+
+      <div class="data-row">
+        <div class="data-label">
+          <span>access key //</span>
+          <span>ee-a89f8702aa</span>
+        </div>
+        <div class="data-value" id="link">ss://YWVzLTI1Ni1nY206TTJWa1pEUm1NVFJsTkRkaE9UWXdZVFZoWkRFM1ptUmtOMlUzTWpoaA@66.90.90.98:8115?prefix=%16%03%01%00%C2%A8%01%01#ee-a89f8702aa</div>
+      </div>
+
+      <div class="stage-meta">
+        <span><span class="dot"></span>SECURE</span>
+        <span>AES-256-GCM</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-info">// SELECT TO PROCEED</div>
+
+  <div class="toast" id="toast">copied</div>
+
+<script>
+  const link = document.getElementById('link');
+  const toast = document.getElementById('toast');
+  const stage = document.getElementById('stage');
+  const bar = document.getElementById('glitchBar');
+
+  function copyText(text) {
+    // Современный API (нужен https/localhost)
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Fallback для file://, content://, http://
+    return new Promise((resolve, reject) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.width = '1px';
+      ta.style.height = '1px';
+      ta.style.opacity = '0';
+      ta.setAttribute('readonly', '');
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      try {
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok ? resolve() : reject(new Error('execCommand failed'));
+      } catch (e) {
+        document.body.removeChild(ta);
+        reject(e);
+      }
+    });
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1400);
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    copyText(link.innerText)
+      .then(() => showToast('copied'))
+      .catch(() => showToast('copy failed'));
+  });
+
+  document.querySelectorAll('.row').forEach(r => {
+    r.addEventListener('mouseenter', () => {
+      document.querySelectorAll('.row').forEach(x => {
+        x.classList.remove('active');
+        const trail = x.querySelector('.trail');
+        const stripe = x.querySelector('.stripe-deco');
+        if (trail) trail.remove();
+        if (stripe) stripe.remove();
+      });
+      r.classList.add('active');
+      // Воссоздаём декор для нового активного
+      if (!r.querySelector('.trail')) {
+        const t = document.createElement('span');
+        t.className = 'trail';
+        r.appendChild(t);
+      }
+      if (!r.querySelector('.stripe-deco')) {
+        const s = document.createElement('span');
+        s.className = 'stripe-deco';
+        r.appendChild(s);
+      }
+    });
+  });
+
+  function triggerBurst() {
+    stage.classList.add('burst');
+    setTimeout(() => stage.classList.remove('burst'), 450);
+  }
+  function triggerBar() {
+    bar.classList.remove('active');
+    void bar.offsetWidth;
+    bar.classList.add('active');
+  }
+  function loop() {
+    const delay = 1500 + Math.random() * 3000;
+    setTimeout(() => {
+      const r = Math.random();
+      if (r > 0.3) triggerBurst();
+      if (r > 0.5) triggerBar();
+      if (r > 0.85) setTimeout(triggerBurst, 130);
+      loop();
+    }, delay);
+  }
+  loop();
+</script>
+</body>
+</html>
